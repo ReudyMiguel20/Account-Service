@@ -1,12 +1,12 @@
 <div class="step-text">
 <h5 id="description">Description</h5>
-<p>It's time to start with the business functions of our application! We remind you that our service must provide users with information about the employee's salary for the selected period. Also, our service should allow the accountant to upload information about the salary of employees. Take another look at the endpoints:</p>
+<p>It's time to start with the business functions of our application! We remind you that our service must provide users with information about the employee's salary for the selected period. Also, our service should allow the accountant to upload information about the salary of employee. Take another look at the endpoints:</p>
 <ol>
 <li><code class="language-json">POST api/acct/payments</code> uploads payrolls;</li>
-<li><code class="language-json">PUT api/acct/payments</code> changes the salary of a specific user;</li>
+<li><code class="language-json">PUT api/acct/payments</code> changes the salary of a specific employee;</li>
 <li><code class="language-json">GET api/empl/payment</code> gives access to the payroll of an employee.</li>
 </ol>
-<p>Information about the salary of employees is transmitted as an array of JSON objects. This operation must be transactional. That is, if an error occurs during an update, perform a rollback to the original state. The following requirements are imposed on the data:</p>
+<p>Information about the salary of employee is transmitted as an array of JSON objects. This operation must be transactional. That is, if an error occurs during an update, perform a rollback to the original state. The following requirements are imposed on the data:</p>
 <ul>
 <li>An employee must be among the users of our service;</li>
 <li>The period for which the salary is paid must be unique for each employee (for <code class="language-json">POST</code>),</li>
@@ -22,7 +22,7 @@
 <p>Add the <code class="language-json">POST api/acct/payments</code> endpoint. It must be available to unauthorized users, accept data in JSON format, and store it in the database. The operation must be transactional! The JSON is as follows:</p>
 <pre><code class="language-json">[
     {
-        "employee": "&lt;user email&gt;",
+        "employee": "&lt;employee email&gt;",
         "period": "&lt;mm-YYYY&gt;",
         "salary": &lt;Long&gt;
     },
@@ -54,7 +54,7 @@
 <p>The salary must be non-negative. The employee-period pair must be unique. In other words, it should not be possible to allocate the money twice (or thrice) during the same period. An employee must be among the users of our service. Error messages are up to you.</p>
 <p>Add the <code class="language-json">PUT api/acct/payments</code> endpoint. It must be available to unauthorized users, accept data in JSON format, and update the salary for the specified users in the database. The JSON must be as follows:</p>
 <pre><code class="language-json">{
-    "employee": "&lt;user email&gt;",
+    "employee": "&lt;employee email&gt;",
     "period": "&lt;mm-YYYY&gt;",
     "salary": &lt;Long&gt;
 }</code></pre>
@@ -70,14 +70,14 @@
     "message": "&lt;error message&gt;",
     "path": "/api/acct/payments"
 }</code></pre>
-<p>Add the <code class="language-json">GET api/empl/payment</code> endpoint. It should be available only to authenticated users. It takes the <code class="language-json">period</code> parameter that specifies the period (the month and year) and provides the information for this period. If the parameter <code class="language-json">period</code> is not specified, the endpoint provides information about the employee's salary for each period from the database as an array of objects in descending order by date. JSON representation information about user salary must look like this:</p>
+<p>Add the <code class="language-json">GET api/empl/payment</code> endpoint. It should be available only to authenticated users. It takes the <code class="language-json">period</code> parameter that specifies the period (the month and year) and provides the information for this period. If the parameter <code class="language-json">period</code> is not specified, the endpoint provides information about the employee's salary for each period from the database as an array of objects in descending order by date. JSON representation information about employee salary must look like this:</p>
 <pre><code class="language-json">{
-   "name": "&lt;user name&gt;",
-   "lastname": "&lt;user lastname&gt;",
+   "name": "&lt;employee name&gt;",
+   "lastname": "&lt;employee lastname&gt;",
    "period": "&lt;name of month-YYYY&gt;",
    "salary": "X dollar(s) Y cent(s)"
 }</code></pre>
-<p>Error message for a non-authenticated or wrong user should have the <code class="language-json">401 (Unauthorized)</code> status. If data is missing, the service should return an empty JSON array or an empty JSON, respectively. If the <code class="language-json">period</code> parameter has a wrong format, the service must respond with the <code class="language-json">HTTP Bad Request</code> status (<code class="language-json">400</code>) and the body below. Error messages are up to you:</p>
+<p>Error message for a non-authenticated or wrong employee should have the <code class="language-json">401 (Unauthorized)</code> status. If data is missing, the service should return an empty JSON array or an empty JSON, respectively. If the <code class="language-json">period</code> parameter has a wrong format, the service must respond with the <code class="language-json">HTTP Bad Request</code> status (<code class="language-json">400</code>) and the body below. Error messages are up to you:</p>
 <pre><code class="language-json">{
     "timestamp": "&lt;date&gt;",
     "status": 400,

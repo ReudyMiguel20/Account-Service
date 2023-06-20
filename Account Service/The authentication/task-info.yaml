@@ -379,6 +379,203 @@ files:
       };
     }
   learner_created: false
+- name: src/account/controllers/AuthenticationController.java
+  visible: true
+  text: |
+    package account.controllers;
+
+    import account.User;
+    import jakarta.validation.Valid;
+    import org.springframework.http.ResponseEntity;
+    import org.springframework.web.bind.annotation.PostMapping;
+    import org.springframework.web.bind.annotation.RequestBody;
+    import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.RestController;
+
+    @RestController
+    @RequestMapping("/api/auth")
+    public class AuthenticationController {
+
+
+
+        @PostMapping("/signup")
+        public ResponseEntity<?> signUpUser(@Valid @RequestBody User user) {
+            User testUser = null;
+            testUser = user;
+
+            if (testUser == null) {
+                return ResponseEntity.badRequest().build();
+            } else {
+                return ResponseEntity.ok().body(testUser);
+            }
+        }
+    }
+  learner_created: true
+- name: src/account/controllers/ServiceController.java
+  visible: true
+  text: |
+    package account.controllers;
+
+    import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.RestController;
+
+    @RestController
+    @RequestMapping("/api/admin")
+    public class ServiceController {
+
+    }
+  learner_created: true
+- name: src/account/controllers/BusinessLogicController.java
+  visible: true
+  text: |
+    package account.controllers;
+
+    import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.RestController;
+
+    @RestController
+    public class BusinessLogicController {
+
+    }
+  learner_created: true
+- name: src/account/security/SecurityConfig.java
+  visible: true
+  learner_created: true
+- name: src/account/entities/Employee.java
+  visible: true
+  text: |
+    package account;
+
+    import com.fasterxml.jackson.annotation.JsonIgnore;
+    import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+    import com.fasterxml.jackson.annotation.JsonProperty;
+    import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+    import jakarta.validation.constraints.Email;
+    import jakarta.validation.constraints.NotEmpty;
+
+    @JsonPropertyOrder({"name", "lastname", "email"})
+    public class User {
+
+        @NotEmpty
+        @JsonProperty(value = "name")
+        private String name;
+
+        @NotEmpty
+        @JsonProperty(value = "lastname")
+        private String lastName;
+
+        @NotEmpty
+        @JsonProperty(value = "email")
+        @Email(regexp = "\\w+(@acme.com)$")
+        private String email;
+
+        @NotEmpty
+        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+        private String password;
+
+        public User() {
+        }
+
+        public User(String name, String lastName, String email, String password) {
+            this.name = name;
+            this.lastName = lastName;
+            this.email = email;
+            this.password = password;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+
+        public void setLastName(String lastName) {
+            this.lastName = lastName;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+
+
+    }
+  learner_created: true
+- name: src/account/service/EmployeeService.java
+  visible: true
+  learner_created: true
+- name: src/account/service/EmployeeServiceImpl.java
+  visible: true
+  learner_created: true
+- name: src/account/entities/User.java
+  visible: true
+  learner_created: true
+- name: src/account/service/UserService.java
+  visible: true
+  learner_created: true
+- name: src/account/service/UserServiceImpl.java
+  visible: true
+  learner_created: true
+- name: src/account/exceptions/RestAuthenticationEntryPoint.java
+  visible: true
+  learner_created: true
+- name: src/account/entities/Authorities.java
+  visible: true
+  learner_created: true
+- name: src/account/service/AuthoritiesServiceImpl.java
+  visible: true
+  learner_created: true
+- name: src/account/service/AuthoritiesService.java
+  visible: true
+  learner_created: true
+- name: src/account/repositories/EmployeeRepository.java
+  visible: true
+  learner_created: true
+- name: src/account/repositories/UserRepository.java
+  visible: true
+  learner_created: true
+- name: src/account/repositories/AuthoritiesRepository.java
+  visible: true
+  learner_created: true
+- name: src/account/UserDetailsImpl.java
+  visible: true
+  learner_created: true
+- name: src/UserDetailsServiceImpl.java
+  visible: true
+  learner_created: true
+- name: src/account/exceptions/UserExistException.java
+  visible: true
+  learner_created: true
+- name: src/account/exceptions/ControllerExceptionHandler.java
+  visible: true
+  learner_created: true
+- name: src/account/exceptions/CustomErrorMessage.java
+  visible: true
+  learner_created: true
+- name: src/account/exceptions/UnauthorizedUser.java
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/217/stages/1087/implement#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations!
+  time: "Tue, 20 Jun 2023 23:46:42 UTC"
 record: -1

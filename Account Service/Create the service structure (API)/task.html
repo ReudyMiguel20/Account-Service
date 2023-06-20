@@ -5,8 +5,8 @@
 <li>Authentication</li>
 </ul>
 <ol>
-<li><code class="language-json">POST api/auth/signup</code> allows the user to register on the service;</li>
-<li><code class="language-json">POST api/auth/changepass</code> changes a user password.</li>
+<li><code class="language-json">POST api/auth/signup</code> allows the employee to register on the service;</li>
+<li><code class="language-json">POST api/auth/changepass</code> changes a employee password.</li>
 </ol>
 <ul>
 <li>Business functionality</li>
@@ -20,9 +20,9 @@
 <li>Service functionality</li>
 </ul>
 <ol>
-<li><code class="language-json">PUT api/admin/user/role</code> changes user roles;</li>
-<li><code class="language-json">DELETE api/admin/user</code> deletes a user;</li>
-<li><code class="language-json">GET api/admin/user</code> displays information about all users.</li>
+<li><code class="language-json">PUT api/admin/employee/role</code> changes employee roles;</li>
+<li><code class="language-json">DELETE api/admin/employee</code> deletes a employee;</li>
+<li><code class="language-json">GET api/admin/employee</code> displays information about all users.</li>
 </ol>
 <p>To ensure the security of our service, we will also plan the distribution of roles:</p>
 <table border="1" cellpadding="1" cellspacing="1">
@@ -70,21 +70,21 @@
 <td>-</td>
 </tr>
 <tr>
-<td><code class="language-json">GET api/admin/user</code></td>
+<td><code class="language-json">GET api/admin/employee</code></td>
 <td>-</td>
 <td>-</td>
 <td>-</td>
 <td>+</td>
 </tr>
 <tr>
-<td><code class="language-json">DELETE api/admin/user</code></td>
+<td><code class="language-json">DELETE api/admin/employee</code></td>
 <td>-</td>
 <td>-</td>
 <td>-</td>
 <td>+</td>
 </tr>
 <tr>
-<td><code class="language-json">PUT api/admin/user/role</code></td>
+<td><code class="language-json">PUT api/admin/employee/role</code></td>
 <td>-</td>
 <td>-</td>
 <td>-</td>

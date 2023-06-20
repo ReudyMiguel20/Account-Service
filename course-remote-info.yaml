@@ -3,14 +3,14 @@ hyperskill_project:
   ide_files: https://cogniterra.org/media/attachments/lesson/26066/additional_files.json
   is_template_based: false
   use_ide: true
-update_date: "Thu, 01 Jan 1970 00:00:00 UTC"
+update_date: "Tue, 20 Jun 2023 02:29:18 UTC"
 stages:
 - id: 1086
   step: 16601
   is_completed: true
 - id: 1087
   step: 16602
-  is_completed: false
+  is_completed: true
 - id: 1088
   step: 16603
   is_completed: false
@@ -264,16 +264,16 @@ topics:
     theory_id: 8262
   - title: "Hashing: overview"
     theory_id: 9831
-  - title: Hash function
-    theory_id: 10878
-  - title: Hash table
-    theory_id: 13054
   - title: Introduction to logging
     theory_id: 5538
   - title: Debugging techniques
     theory_id: 13775
   - title: Design principles
     theory_id: 8956
+  - title: Hash function
+    theory_id: 30143
+  - title: Hash table
+    theory_id: 13054
   - title: Jackson
     theory_id: 21027
   - title: Authentication and Authorization
