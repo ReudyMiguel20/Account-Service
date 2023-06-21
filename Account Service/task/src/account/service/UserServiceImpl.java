@@ -1,5 +1,6 @@
 package account.service;
 
+import account.dto.SuccessfulPassword;
 import account.repositories.UserRepository;
 import account.entities.Employee;
 import account.entities.User;
@@ -13,18 +14,21 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private UserRepository userRepository;
+    private PasswordEncoder encoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder encoder) {
         this.userRepository = userRepository;
+        this.encoder = encoder;
     }
 
+    /* Method to create a new user. It takes an employee email and password, here in this method we set the value of
+    *  enabled to '1' and then save the user to the database. */
     @Override
-    public void save(Employee employee) {
+    public void saveNewUser(Employee employee) {
         User tempUser = new User(employee);
-//        tempUser.setPassword(encoder.encode(tempUser.getPassword()));
-
         tempUser.setEnabled(1);
+
         this.userRepository.save(tempUser);
     }
 
@@ -39,9 +43,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public SuccessfulPassword changePassword(Employee employee) {
+        saveNewUser(employee);
+        return new SuccessfulPassword(employee.getEmail(), "The password has been updated successfully");
+    }
+
+    @Override
+    public void updateUser(User user) {
+        this.userRepository.save(user);
+    }
+
+    @Override
     public List<User> getAllUsers() {
         return this.userRepository.findAll();
     }
-
-
 }

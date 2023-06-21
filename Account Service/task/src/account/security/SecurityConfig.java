@@ -59,6 +59,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/h2-console/**").permitAll();
                     auth.requestMatchers(HttpMethod.POST, "/api/auth/signup", "/actuator/shutdown").permitAll();
+                    auth.requestMatchers(HttpMethod.POST,"/api/auth/changepass").hasRole("USER");
                     auth.requestMatchers(HttpMethod.GET,"/api/empl/payment").hasRole("USER");
                     auth.anyRequest().authenticated();
                 });
@@ -69,6 +70,11 @@ public class SecurityConfig {
 
 
         return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder encoder() {
+        return new BCryptPasswordEncoder(13);
     }
 
 }

@@ -1,7 +1,6 @@
 package account.exceptions;
 
-import org.apache.coyote.Response;
-import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties;
+import org.springframework.boot.actuate.autoconfigure.metrics.MetricsProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -22,11 +21,31 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         String error = "Bad Request";
+        String message = "Password length must be 12 chars minimum!";
+
+        //Removing 'uri=' from the path
+        String path = request.getDescription(false);
+        path = path.replace("uri=", "");
+
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", status.value());
         body.put("error", error);
-        body.put("path", request.getDescription(false));
+        body.put("message", message);
+        body.put("path", path);
+
+//        // Custom error messages based on validation errors
+//        List<String> errorMessages = ex.getBindingResult().getFieldErrors().stream()
+//                .map(fieldError -> {
+//                    if (fieldError.getField().equals("password")){
+//                        //Custom error message for password validation
+//                        if (fieldError.getRejectedValue().toString().length() < 12) {
+//                            return "Password length must be 12 chars minimum!";
+//                        }
+//                    }
+//                    return fieldError.getDefaultMessage();
+//                })
+//                .collect(Collectors.toList());
 
         return new ResponseEntity<>(body, headers, status);
     }
@@ -35,7 +54,11 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<CustomErrorMessage> handleUserExists(UserExistException e, WebRequest request) {
         String error = "Bad Request";
         String message = "User exist!";
-        String path = "/api/auth/signup";
+
+        //Removing 'uri=' from the path
+        String path = request.getDescription(false);
+        path = path.replace("uri=", "");
+
         CustomErrorMessage body = new CustomErrorMessage(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
@@ -48,19 +71,63 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(UnauthorizedUser.class)
-    public ResponseEntity<CustomErrorMessage> handleUnauthorized() {
+    public ResponseEntity<CustomErrorMessage> handleUnauthorized(WebRequest request) {
         String error = "Unauthorized";
         String message = "";
-        String path = "/api/empl/payment";
+
+        //Removing 'uri=' from the path
+        String path = request.getDescription(false);
+        path = path.replace("uri=", "");
+
         CustomErrorMessage body = new CustomErrorMessage(
                 LocalDateTime.now(),
                 HttpStatus.UNAUTHORIZED.value(),
                 error,
-                message
-                ,path
+                message,
+                path
         );
 
         return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
 
+    }
+
+    @ExceptionHandler(BreachedPassword.class)
+    public ResponseEntity<CustomErrorMessage> handlePasswordNotLongEnough(WebRequest request) {
+        String error = "Bad Request";
+        String message = "The password is in the hacker's database!";
+
+        //Removing 'uri=' from the path
+        String path = request.getDescription(false);
+        path = path.replace("uri=", "");
+
+        CustomErrorMessage body = new CustomErrorMessage(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                error,
+                message,
+                path
+        );
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(SamePassword.class)
+    public ResponseEntity<CustomErrorMessage> handleSamePassword(WebRequest request) {
+        String error = "Bad Request";
+        String message = "The passwords must be different!";
+
+        //Removing 'uri=' from the path
+        String path = request.getDescription(false);
+        path = path.replace("uri=", "");
+
+        CustomErrorMessage body = new CustomErrorMessage(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                error,
+                message,
+                path
+        );
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 }

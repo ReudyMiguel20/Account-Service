@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -38,13 +37,13 @@ public class Employee {
     @NotEmpty
     @JsonProperty(value = "email")
     @Email(regexp = "\\w+(@acme.com)$")
-
     @Column(name = "email", columnDefinition = "VARCHAR_IGNORECASE")
     private String email;
 
     @NotEmpty
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password")
+    @Size(min = 12, message = "oof")
     private String password;
 
     @Column(name = "ROLE")
@@ -58,7 +57,7 @@ public class Employee {
         this.name = name;
         this.lastName = lastName;
         this.email = email;
-        this.password = "{noop}" + password;
+        this.password = password;
     }
 
     public long getId() {
@@ -98,7 +97,7 @@ public class Employee {
     }
 
     public void setPassword(String password) {
-        this.password = "{noop}" + password;
+        this.password = password;
     }
 
     public String getRole() {

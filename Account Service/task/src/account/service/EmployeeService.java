@@ -6,8 +6,12 @@ import java.util.List;
 
 public interface EmployeeService {
 
-    Employee save(Employee employee);
+    void saveNewUser(Employee employee);
+    void updateEmployee(Employee employee);
     Employee getEmployeeByEmail(String email);
-    boolean findEmployeeByEmail(String email);
+    boolean userExists(String email);
+    boolean samePassword(String username, String newPassword);
+    boolean breachedPassword(String newPassword);
+    Employee changePassword(String username, String newPassword);
     List<Employee> getAllEmployees();
 }

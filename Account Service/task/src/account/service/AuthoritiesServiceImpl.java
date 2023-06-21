@@ -16,6 +16,8 @@ public class AuthoritiesServiceImpl implements AuthoritiesService {
         this.authoritiesRepository = authoritiesRepository;
     }
 
+    /* Pretty self-explanatory method of creating a new Authority, then setting some values to then save it to the
+    *  database. */
     @Override
     public void save(Employee employee) {
         Authorities tempAuthority = new Authorities(employee);
