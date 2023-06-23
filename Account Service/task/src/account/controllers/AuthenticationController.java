@@ -4,7 +4,6 @@ import account.BreachedPasswords;
 import account.dto.PasswordChange;
 import account.dto.SuccessfulPassword;
 import account.entities.Employee;
-//import account.exceptions.RestAuthenticationEntryPoint;
 import account.exceptions.BreachedPassword;
 import account.exceptions.SamePassword;
 import account.exceptions.UserExistException;
@@ -54,7 +53,6 @@ public class AuthenticationController {
 
     @PostMapping("/changepass")
     public ResponseEntity<?> changePassword(Authentication auth, @Valid @RequestBody PasswordChange newPassword) {
-        System.out.println("Aintnoway");
         String username = auth.getName();
         boolean breachedPassword = this.employeeService.breachedPassword(newPassword.getNewPassword());
         boolean samePassword = this.employeeService.samePassword(username, newPassword.getNewPassword());

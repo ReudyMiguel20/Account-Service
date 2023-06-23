@@ -10,7 +10,6 @@ public class Authorities {
     @Column(name = "username", columnDefinition = "VARCHAR_IGNORECASE")
     private String username;
 
-
     @Column(name = "authority")
     private String role;
 

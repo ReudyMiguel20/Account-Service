@@ -1,4 +1,4 @@
-package account.security;
+package account.config;
 
 
 //import account.exceptions.RestAuthenticationEntryPoint;
@@ -35,8 +35,6 @@ import java.io.IOException;
 
 @Configuration
 public class SecurityConfig {
-
-
     @Autowired
     private AuthenticationEntryPoint restAuthenticationEntryPoint;
 
@@ -61,7 +59,7 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.POST, "/api/auth/signup", "/actuator/shutdown").permitAll();
                     auth.requestMatchers(HttpMethod.POST,"/api/auth/changepass").hasRole("USER");
                     auth.requestMatchers(HttpMethod.GET,"/api/empl/payment").hasRole("USER");
-                    auth.anyRequest().authenticated();
+                    auth.anyRequest().permitAll();
                 });
 
         http

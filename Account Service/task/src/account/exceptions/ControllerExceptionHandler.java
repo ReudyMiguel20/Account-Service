@@ -1,6 +1,8 @@
 package account.exceptions;
 
-import org.springframework.boot.actuate.autoconfigure.metrics.MetricsProperties;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolationException;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -129,5 +132,31 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         );
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(BadRequest.class)
+    public ResponseEntity<CustomErrorMessage> badRequest(WebRequest request) {
+        String error = "Bad Request";
+        String message = "Error!";
+
+        //Removing 'uri"' from the path
+        String path = request.getDescription(false);
+        path = path.replace("uri=", "");
+
+        CustomErrorMessage body = new CustomErrorMessage(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                error,
+                message,
+                path
+        );
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({ConstraintViolationException.class, org.hibernate.exception.ConstraintViolationException.class})
+    public void springHandleNotFound(HttpServletResponse response) throws IOException {
+        response.sendError(HttpStatus.BAD_REQUEST.value());
     }
 }

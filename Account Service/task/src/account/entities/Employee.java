@@ -1,18 +1,20 @@
 package account.entities;
 
+//import account.entities.EmployeePayment;
+//import account.dto.EmployeePayroll;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import org.hibernate.validator.constraints.Length;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-import java.util.Collection;
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @JsonPropertyOrder({"id", "name", "lastname", "email"})
 @Entity
@@ -43,12 +45,20 @@ public class Employee {
     @NotEmpty
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password")
-    @Size(min = 12, message = "oof")
+    @Size(min = 12)
     private String password;
 
     @Column(name = "ROLE")
     @JsonIgnore
     private String role;
+
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    @Column(name = "Employee_Payroll")
+    @ElementCollection
+    @Embedded
+    @JsonIgnore
+    private List<EmployeePayroll> employeePayrollList = new ArrayList<>();
+
 
     public Employee() {
     }
@@ -107,6 +117,35 @@ public class Employee {
     public void setRole(String role) {
         this.role = "ROLE_" + role;
     }
+
+    @JsonIgnore
+    public List<EmployeePayroll> getEmployeePaymentList() {
+        employeePayrollList.sort(periodComparator);
+        return employeePayrollList;
+    }
+
+    @JsonIgnore
+    public void setEmployeePaymentList(List<EmployeePayroll> employeePayrollList) {
+        this.employeePayrollList = employeePayrollList;
+    }
+
+    public void addEmployeePayroll(EmployeePayroll employeePayroll) {
+        this.employeePayrollList.add(employeePayroll);
+    }
+
+    @Transient
+    Comparator<EmployeePayroll> periodComparator = (o1, o2) -> {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM-yyyy", Locale.ENGLISH);
+        try {
+            Date date1 = dateFormat.parse(o1.getPeriod());
+            Date date2 = dateFormat.parse(o2.getPeriod());
+            return date2.compareTo(date1);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    };
+
 
     @Override
     public String toString() {

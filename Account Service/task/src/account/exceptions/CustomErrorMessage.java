@@ -9,7 +9,6 @@ public class CustomErrorMessage {
     private String message;
     private String path;
 
-
     public CustomErrorMessage(LocalDateTime timestamp, int status, String error, String message, String path) {
         this.timestamp = timestamp;
         this.status = status;

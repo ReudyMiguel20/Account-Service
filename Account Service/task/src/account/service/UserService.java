@@ -7,7 +7,6 @@ import account.entities.User;
 import java.util.List;
 
 public interface UserService {
-
     void saveNewUser(Employee employee);
     User findUserByUsername(String username);
     void updateUser(User user);
