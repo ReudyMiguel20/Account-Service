@@ -38,15 +38,13 @@ public class AuthenticationController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signUser(@Valid @RequestBody Employee employee) {
-        boolean userExists = this.employeeService.userExists(employee.getEmail());
+        boolean userExists = this.employeeService.doUserExists(employee.getEmail());
         employee.setEmail(employee.getEmail().toLowerCase());
 
         if (userExists) {
             throw new UserExistException();
         } else {
-            this.employeeService.saveNewUser(employee);
-            this.userService.saveNewUser(employee);
-            this.authoritiesService.save(employee);
+            this.employeeService.saveNewEmployee(employee);
             return ResponseEntity.ok().body(employee);
         }
     }
@@ -63,6 +61,7 @@ public class AuthenticationController {
         } else if (samePassword){
             throw new SamePassword();
         } else {
+            //Consider doing this inside the employee service
             Employee tempEmployee = this.employeeService.changePassword(username, newPassword.getNewPassword());
             SuccessfulPassword successfulPassword = this.userService.changePassword(tempEmployee);
             return ResponseEntity.ok().body(successfulPassword);

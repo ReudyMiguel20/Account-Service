@@ -15,8 +15,9 @@ import jakarta.validation.constraints.Size;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
-@JsonPropertyOrder({"id", "name", "lastname", "email"})
+@JsonPropertyOrder({"id", "name", "lastname", "email", "roles"})
 @Entity
 @Table(name = "Employees")
 public class Employee {
@@ -49,8 +50,8 @@ public class Employee {
     private String password;
 
     @Column(name = "ROLE")
-    @JsonIgnore
-    private String role;
+    @JsonProperty(value = "roles")
+    private List<String> role = new ArrayList<>();
 
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
     @Column(name = "Employee_Payroll")
@@ -58,7 +59,6 @@ public class Employee {
     @Embedded
     @JsonIgnore
     private List<EmployeePayroll> employeePayrollList = new ArrayList<>();
-
 
     public Employee() {
     }
@@ -110,13 +110,33 @@ public class Employee {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
+//    public List<Authorities> getRole() {
+//        return role;
+//    }
+//
+//    public void setRole(Authorities authority) {
+//        this.role.add(authority);
+//    }
+
+    public List<String> getRole() {
+        return this.role.stream().sorted().toList();
     }
 
     public void setRole(String role) {
-        this.role = "ROLE_" + role;
+        this.role.add("ROLE_" + role);
     }
+
+    public void removeRole(String role) {
+        this.role.remove(role);
+    }
+
+//        public String getRole() {
+//        return role;
+//    }
+//
+//    public void setRole(String role) {
+//        this.role = "ROLE_" + role;
+//    }
 
     @JsonIgnore
     public List<EmployeePayroll> getEmployeePaymentList() {

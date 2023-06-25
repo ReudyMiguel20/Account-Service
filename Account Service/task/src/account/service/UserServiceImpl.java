@@ -6,7 +6,6 @@ import account.entities.Employee;
 import account.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +30,6 @@ public class UserServiceImpl implements UserService {
     public void saveNewUser(Employee employee) {
         User tempUser = new User(employee);
         tempUser.setEnabled(1);
-
         this.userRepository.save(tempUser);
     }
 
@@ -54,6 +52,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(User user) {
         this.userRepository.save(user);
+    }
+
+    @Override
+    public void deleteUser(String username) {
+        for (User userOnList : getAllUsers()) {
+            if (userOnList.getUsername().equalsIgnoreCase(username)) {
+                this.userRepository.delete(userOnList);
+            }
+        }
     }
 
     @Override

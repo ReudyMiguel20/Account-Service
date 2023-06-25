@@ -1,14 +1,15 @@
 package account.service;
 
 import account.BreachedPasswords;
+import account.dto.AssignUserRole;
 import account.dto.UploadPayroll;
 import account.entities.EmployeePayroll;
 import account.exceptions.BadRequest;
 import account.exceptions.BreachedPassword;
-import account.exceptions.ControllerExceptionHandler;
+import account.exceptions.CannotCombineRoles;
+import account.exceptions.CannotRemoveAdministrator;
 import account.repositories.EmployeeRepository;
 import account.entities.Employee;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,13 +24,22 @@ import java.util.regex.Pattern;
 public class EmployeeServiceImpl implements EmployeeService {
 
     private EmployeeRepository employeeRepository;
+    private AuthoritiesServiceImpl authoritiesService;
+    private UserServiceImpl userService;
     private PasswordEncoder encoder;
     private BreachedPasswords breachedPasswords;
     private EmployeePayrollServiceImpl employeePayrollService;
 
-    @Autowired
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository, PasswordEncoder encoder, BreachedPasswords breachedPasswords, EmployeePayrollServiceImpl employeePayrollService) {
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository,
+                               AuthoritiesServiceImpl authoritiesService,
+                               UserServiceImpl userService,
+                               PasswordEncoder encoder,
+                               BreachedPasswords breachedPasswords,
+                               EmployeePayrollServiceImpl employeePayrollService)
+    {
         this.employeeRepository = employeeRepository;
+        this.authoritiesService = authoritiesService;
+        this.userService = userService;
         this.encoder = encoder;
         this.breachedPasswords = breachedPasswords;
         this.employeePayrollService = employeePayrollService;
@@ -38,11 +48,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     /* This method adds a new Employee to the database, before storing the employee it checks if the password is
      *  breached, and then encode the password using Bcrypt with a strength of 13 */
     @Override
-    public void saveNewUser(Employee employee) {
-        employee.setRole("USER");
+    public void saveNewEmployee(Employee employee) {
+        this.authoritiesService.save(employee);
+
+        //Assigning a bcrypt password to the employee
         breachedPassword(employee.getPassword());
         employee.setPassword(encoder.encode(employee.getPassword()));
 
+        this.userService.saveNewUser(employee);
+
+        //Persisting the employee to the 'Employees' table
         this.employeeRepository.save(employee);
     }
 
@@ -89,8 +104,8 @@ public class EmployeeServiceImpl implements EmployeeService {
             employeePayrollInfo.setSalary(x.getSalary());
 
             //This is to check if there's repeated periods
-            for (EmployeePayroll y : tempEmployee.getEmployeePaymentList()) {
-                if (y.getPeriod().equalsIgnoreCase(employeePayrollInfo.getPeriod())) {
+            for (EmployeePayroll payroll : tempEmployee.getEmployeePaymentList()) {
+                if (payroll.getPeriod().equalsIgnoreCase(employeePayrollInfo.getPeriod())) {
                     throw new BadRequest();
                 }
             }
@@ -118,8 +133,11 @@ public class EmployeeServiceImpl implements EmployeeService {
                 employeePayrollList.add(employeePayrollInfo);
             }
         }
+        updateOldPayrollWithNewPayroll(employee, employeePayrollList);
+        updateEmployee(employee);
+    }
 
-        //Need to throw an error here in case one of the dates are wrong
+    public void updateOldPayrollWithNewPayroll(Employee employee, List<EmployeePayroll> employeePayrollList) {
         for (EmployeePayroll newPayrollInfo : employeePayrollList) {
             for (EmployeePayroll oldPayrollInfo : employee.getEmployeePaymentList()) {
                 if (newPayrollInfo.getPeriod().equals(oldPayrollInfo.getPeriod())) {
@@ -127,12 +145,10 @@ public class EmployeeServiceImpl implements EmployeeService {
                 }
             }
         }
-
-        updateEmployee(employee);
     }
 
     @Override
-    public boolean userExists(String email) {
+    public boolean doUserExists(String email) {
         for (Employee x : getAllEmployees()) {
             if (x.getEmail().equalsIgnoreCase(email)) {
                 return true;
@@ -143,15 +159,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeePayroll getSinglePayroll(Employee employee, String period) {
-        /* Formatting the period from "numberOfMonth-yyyy" to "nameOfMonth-yyyy" and checking if it matches the regex
-         *  if it doesn't a new BadRequest exception is going to be thrown */
-        Pattern pattern = Pattern.compile("([0][1-9]|[1][0-2])(-{1})(\\d{1,})");
-        Matcher patternPeriodMatcher = pattern.matcher(period);
-        if (!patternPeriodMatcher.matches()) {
-            throw new BadRequest();
-        }
-
-        period = this.employeePayrollService.dateYearMonthFormatter(period);
+        period = formatMonthNumberToMonthName(period);
 
         for (EmployeePayroll x : employee.getEmployeePaymentList()) {
             if (x.getPeriod().equals(period)) {
@@ -160,6 +168,39 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         throw new BadRequest();
     }
+
+    /* Formatting the period from "numberOfMonth-yyyy" to "nameOfMonth-yyyy" and checking if it matches the regex
+     *  if it doesn't a new BadRequest exception is going to be thrown */
+    public String formatMonthNumberToMonthName(String period) {
+        Pattern pattern = Pattern.compile("([0][1-9]|[1][0-2])(-{1})(\\d{1,})");
+        Matcher patternPeriodMatcher = pattern.matcher(period);
+        if (!patternPeriodMatcher.matches()) {
+            throw new BadRequest();
+        }
+        period = this.employeePayrollService.dateYearMonthFormatter(period);
+        return period;
+    }
+
+//    @Override
+//    @Transactional
+//    public void updateEmployeeRole(Employee employee, String role) {
+////        this.authoritiesService.assignCustomRole(employee, role);
+//            updateEmployee(this.authoritiesService.updateAuthorities(employee, role));
+//
+//    }
+
+//    @Override
+//    @Transactional
+//    public void updateEmployeeRole(AssignUserRole assignUserRole) {
+//
+//
+////        this.authoritiesService.removeOrGrant(operation);
+////        this.authoritiesService.assignCustomRole(employee, role);
+////        updateEmployee(this.authoritiesService.grantAuthority(employee, role));
+//
+//    }
+
+
 
     @Override
     public boolean samePassword(String email, String newPassword) {
@@ -189,6 +230,52 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         return tempEmployee;
     }
+
+    //Probably need to return employee here
+    @Transactional
+    @Override
+    public void removeOrGrant(AssignUserRole assignUserRole) {
+        Employee employee = getEmployeeByEmail(assignUserRole.getUsername());
+        String role = assignUserRole.getRole();
+        String operation = assignUserRole.getOperation();
+
+
+
+
+
+        switch (operation.toUpperCase()) {
+            case "GRANT" -> {
+                if (!this.authoritiesService.isUserAdmin(employee) && role.equalsIgnoreCase("ADMINISTRATOR")) {
+                    //Admin cannot have roles
+                    throw new CannotCombineRoles();
+                }
+                updateEmployee(this.authoritiesService.grantAuthority(employee, role));
+            }
+            case "REMOVE" -> {
+                if (this.authoritiesService.isUserAdmin(employee)) {
+                    //throw exception user is admin, cannot have roles
+                    throw new CannotRemoveAdministrator();
+                }
+
+                updateEmployee(this.authoritiesService.deleteUserRole(employee, role));
+            }
+            default -> {
+                //throw exception here
+                throw new BadRequest();
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteEmployee(Employee employee) {
+        String username = employee.getEmail();
+
+        this.authoritiesService.deleteAllRoles(username);
+        this.userService.deleteUser(username);
+        this.employeeRepository.delete(employee);
+    }
+
 
     @Override
     public List<Employee> getAllEmployees() {

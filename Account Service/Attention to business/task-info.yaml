@@ -1867,9 +1867,6 @@ files:
         }
     }
   learner_created: true
-- name: src/account/dto/EmployeePayrollRequest.java
-  visible: true
-  learner_created: true
 - name: src/account/config/AppConfiguration.java
   visible: true
   learner_created: true
@@ -1978,12 +1975,36 @@ files:
 - name: src/account/exceptions/BadRequest.java
   visible: true
   learner_created: true
+- name: src/account/dto/AssignUserRole.java
+  visible: true
+  learner_created: true
+- name: src/account/exceptions/UserNotFound.java
+  visible: true
+  learner_created: true
 - name: src/account/dto/StatusSuccessful.java
+  visible: true
+  learner_created: true
+- name: src/account/dto/MessageStatus.java
+  visible: true
+  learner_created: true
+- name: src/account/exceptions/CannotRemoveAdministrator.java
+  visible: true
+  learner_created: true
+- name: src/account/exceptions/CannotCombineRoles.java
+  visible: true
+  learner_created: true
+- name: src/account/exceptions/RoleNotFound.java
+  visible: true
+  learner_created: true
+- name: src/account/exceptions/UserRoleDoesntExist.java
+  visible: true
+  learner_created: true
+- name: src/account/exceptions/UserMustHaveOneRole.java
   visible: true
   learner_created: true
 feedback_link: https://hyperskill.org/projects/217/stages/1089/implement#comment
 status: Solved
 feedback:
   message: Congratulations!
-  time: "Fri, 23 Jun 2023 17:57:39 UTC"
-record: -1
+  time: "Fri, 23 Jun 2023 20:04:17 UTC"
+record: 4

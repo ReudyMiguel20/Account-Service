@@ -11,6 +11,7 @@ public interface UserService {
     User findUserByUsername(String username);
     void updateUser(User user);
     SuccessfulPassword changePassword(Employee employee);
+    void deleteUser(String username);
     List<User> getAllUsers();
 
 }

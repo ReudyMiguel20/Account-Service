@@ -2,11 +2,16 @@ package account.entities;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "authorities")
 public class Authorities {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int authority_id;
+
     @Column(name = "username", columnDefinition = "VARCHAR_IGNORECASE")
     private String username;
 
@@ -18,7 +23,12 @@ public class Authorities {
 
     public Authorities(Employee employee) {
         this.username = employee.getEmail();
-        this.role = employee.getRole();
+        this.role = employee.getEmail();
+    }
+
+    public Authorities(Employee employee, String role) {
+        this.username = employee.getEmail();
+        this.role = "ROLE_" + role;
     }
 
     public String getUsername() {
@@ -29,11 +39,19 @@ public class Authorities {
         this.username = username;
     }
 
-    public String getRole() {
+//    public List<String> getRole() {
+//        return role;
+//    }
+//
+//    public void setRole(String role) {
+//        this.role.add(role);
+//    }
+
+        public String getRole() {
         return role;
     }
 
     public void setRole(String role) {
-        this.role = role;
+        this.role = "ROLE_" + role;
     }
 }
