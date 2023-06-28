@@ -3280,15 +3280,9 @@ files:
 - name: src/account/exceptions/AccessDenied.java
   visible: true
   learner_created: true
-- name: src/account/exceptions/CustomAuthenticationFailureHandler.java
-  visible: true
-  learner_created: true
-- name: src/account/exceptions/CustomAccessDeniedHandler.java
-  visible: true
-  learner_created: true
 feedback_link: https://hyperskill.org/projects/217/stages/1090/implement#comment
 status: Solved
 feedback:
   message: Congratulations!
   time: "Sun, 25 Jun 2023 21:38:42 UTC"
-record: -1
+record: 5

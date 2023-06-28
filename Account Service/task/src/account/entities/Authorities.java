@@ -39,15 +39,8 @@ public class Authorities {
         this.username = username;
     }
 
-//    public List<String> getRole() {
-//        return role;
-//    }
-//
-//    public void setRole(String role) {
-//        this.role.add(role);
-//    }
 
-        public String getRole() {
+    public String getRole() {
         return role;
     }
 

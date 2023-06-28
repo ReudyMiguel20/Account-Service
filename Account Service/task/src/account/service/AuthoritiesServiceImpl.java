@@ -111,7 +111,7 @@ public class AuthoritiesServiceImpl implements AuthoritiesService {
 
     @Override
     public Employee assignCustomRole(Employee employee, String role) {
-        if (!role.equalsIgnoreCase("ACCOUNTANT") && !role.equalsIgnoreCase("USER")) {
+        if (!role.equalsIgnoreCase("ACCOUNTANT") && !role.equalsIgnoreCase("USER") && !role.equalsIgnoreCase("AUDITOR")) {
             throw new RoleNotFound();
         }
 

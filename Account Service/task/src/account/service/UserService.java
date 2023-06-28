@@ -12,6 +12,13 @@ public interface UserService {
     void updateUser(User user);
     SuccessfulPassword changePassword(Employee employee);
     void deleteUser(String username);
+
+    void disableUser(Employee employee);
+
+    void enableUser(Employee employee);
+
+    void lockUser(Employee employee);
+
     List<User> getAllUsers();
 
 }

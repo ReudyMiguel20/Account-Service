@@ -60,6 +60,9 @@ public class Employee {
     @JsonIgnore
     private List<EmployeePayroll> employeePayrollList = new ArrayList<>();
 
+    @JsonIgnore
+    private int failedLogins;
+
     public Employee() {
     }
 
@@ -68,6 +71,7 @@ public class Employee {
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+        this.failedLogins = 0;
     }
 
     public long getId() {
@@ -147,6 +151,14 @@ public class Employee {
     @JsonIgnore
     public void setEmployeePaymentList(List<EmployeePayroll> employeePayrollList) {
         this.employeePayrollList = employeePayrollList;
+    }
+
+    public int getFailedLogins() {
+        return failedLogins;
+    }
+
+    public void setFailedLogins(int failedLogins) {
+        this.failedLogins = failedLogins;
     }
 
     public void addEmployeePayroll(EmployeePayroll employeePayroll) {

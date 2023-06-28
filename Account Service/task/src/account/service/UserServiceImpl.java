@@ -64,6 +64,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void disableUser(Employee employee) {
+        User tempUser = findUserByUsername(employee.getEmail());
+        tempUser.setEnabled(0);
+        updateUser(tempUser);
+    }
+
+    @Override
+    public void enableUser(Employee employee) {
+        User tempUser = findUserByUsername(employee.getEmail());
+        tempUser.setEnabled(1);
+        updateUser(tempUser);
+    }
+
+    @Override
+    public void lockUser(Employee employee) {
+        User tempUser = findUserByUsername(employee.getEmail());
+//        tempUser.setAccountNonLocked(false);
+        updateUser(tempUser);
+    }
+
+    @Override
     public List<User> getAllUsers() {
         return this.userRepository.findAll();
     }

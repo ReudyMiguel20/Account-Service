@@ -6,28 +6,20 @@ package account.config;
 //import account.exceptions.CustomAccessDeniedHandler;
 //import account.exceptions.CustomAuthenticationFailureHandler;
 
-import account.exceptions.RestAuthenticationEntryPoint;
+import account.entities.LogEntry;
+import account.service.LogServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
@@ -35,13 +27,11 @@ import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Calendar;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 @Configuration
@@ -49,6 +39,9 @@ import java.util.*;
 public class SecurityConfig {
     @Autowired
     private AuthenticationEntryPoint restAuthenticationEntryPoint;
+
+    @Autowired
+    private LogServiceImpl logService;
 
     @Bean
     public UserDetailsManager userDetailsManager(DataSource dataSource) {
@@ -67,7 +60,6 @@ public class SecurityConfig {
                 })
                 .headers(headers -> headers.frameOptions().disable())
                 .authorizeHttpRequests(auth -> {
-//                    try {
                     auth.requestMatchers("/h2-console/**").permitAll();
                     auth.requestMatchers(HttpMethod.POST, "/api/auth/signup", "/actuator/shutdown").permitAll();
                     auth.requestMatchers(HttpMethod.POST, "/api/auth/changepass").hasAnyRole("USER", "ACCOUNTANT", "ADMINISTRATOR");
@@ -78,6 +70,8 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.DELETE, "/api/admin/user/**").hasAnyRole("ADMINISTRATOR");
                     auth.requestMatchers(HttpMethod.PUT, "/api/admin/user/role/**").hasAnyRole("ADMINISTRATOR");
                     auth.requestMatchers(HttpMethod.PUT, "/api/admin/user/role").hasAnyRole("ADMINISTRATOR");
+                    auth.requestMatchers(HttpMethod.PUT, "/api/admin/user/access").hasAnyRole("ADMINISTRATOR");
+                    auth.requestMatchers(HttpMethod.GET, "/api/security/events/**").hasRole("AUDITOR");
                     try {
                         auth.anyRequest().permitAll()
                                 .and()
@@ -85,13 +79,6 @@ public class SecurityConfig {
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-
-
-//                                .and()
-//                                .exceptionHandling().accessDeniedHandler(getAccessDeniedHandler());
-//                    } catch (Exception e) {
-//                        throw new RuntimeException(e);
-//                    }
                 });
 
         http
@@ -110,10 +97,9 @@ public class SecurityConfig {
     @Bean
     public AccessDeniedHandler getAccessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
-            //customize the response to get your desired response. (check out getOutputStream() and getWriter() methods)
-            //get info about the request from request variable
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
 
             //Removing 'uri=' from the path
             String path = request.getRequestURI();
@@ -128,21 +114,15 @@ public class SecurityConfig {
             responseBody.put("message", "Access Denied!");
             responseBody.put("path", path);
 
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String username = auth.getName();
+
+            this.logService.save(new LogEntry(username, "ACCESS_DENIED", path, path));
+
             response.getOutputStream()
                     .println(objectMapper.writeValueAsString(responseBody));
         };
     }
-
-//    @Bean
-//    public AccessDeniedHandler accessDeniedHandler(){
-//        return new CustomAccessDeniedHandler();
-//    }
-
-//    @Bean
-//    public AuthenticationFailureHandler authenticationFailureHandler() {
-//        return new CustomAuthenticationFailureHandler();
-//    }
-
 }
 
 

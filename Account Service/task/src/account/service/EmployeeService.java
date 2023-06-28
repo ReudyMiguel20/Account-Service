@@ -1,5 +1,6 @@
 package account.service;
 
+import account.dto.AssignUserAccess;
 import account.dto.AssignUserRole;
 import account.dto.UploadPayroll;
 import account.entities.Employee;
@@ -27,9 +28,21 @@ public interface EmployeeService {
 
     //Probably need to return employee here
     @Transactional
-    void removeOrGrant(AssignUserRole assignUserRole);
+    String removeOrGrant(AssignUserRole assignUserRole);
 
     void deleteEmployee(Employee employee);
+
+    void failedLogin(Employee employee);
+
+    void disableEmployee(Employee employee);
+
+//    void enableEmployee(Employee employee);
+
+    void maxOutLoginAttempts(Employee employee);
+
+    void resetLoginAttempts(Employee employee);
+
+    String lockOrUnlockUser(AssignUserAccess assignUserAccess);
 
     //    boolean checkForDuplicateRoles(Employee employee, String role);
     List<Employee> getAllEmployees();

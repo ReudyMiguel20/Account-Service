@@ -24,12 +24,17 @@ public class User implements UserDetails {
     @Column(name = "enabled")
     private int enabled;
 
+//    @Column(name = "locked")
+//    private boolean isAccountLocked;
+
+
     public User() {
     }
 
     public User(Employee employee) {
         this.username = employee.getEmail();
         this.password = employee.getPassword();
+//        this.isAccountNonLocked = false;
     }
 
     public String getUsername() {
@@ -45,6 +50,10 @@ public class User implements UserDetails {
     public boolean isAccountNonLocked() {
         return true;
     }
+
+//    public void setAccountNonLocked(boolean trueOrFalse) {
+//        this.isAccountNonLocked = trueOrFalse;
+//    }
 
     @Override
     public boolean isCredentialsNonExpired() {
@@ -76,5 +85,6 @@ public class User implements UserDetails {
     public void setEnabled(int enabled) {
         this.enabled = enabled;
     }
+
 
 }

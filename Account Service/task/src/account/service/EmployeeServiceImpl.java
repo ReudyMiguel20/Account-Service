@@ -1,6 +1,7 @@
 package account.service;
 
 import account.BreachedPasswords;
+import account.dto.AssignUserAccess;
 import account.dto.AssignUserRole;
 import account.dto.UploadPayroll;
 import account.entities.EmployeePayroll;
@@ -35,8 +36,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                                UserServiceImpl userService,
                                PasswordEncoder encoder,
                                BreachedPasswords breachedPasswords,
-                               EmployeePayrollServiceImpl employeePayrollService)
-    {
+                               EmployeePayrollServiceImpl employeePayrollService) {
         this.employeeRepository = employeeRepository;
         this.authoritiesService = authoritiesService;
         this.userService = userService;
@@ -62,6 +62,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    @Transactional
     public void updateEmployee(Employee employee) {
         this.employeeRepository.save(employee);
     }
@@ -201,7 +202,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 //    }
 
 
-
     @Override
     public boolean samePassword(String email, String newPassword) {
         for (Employee x : getAllEmployees()) {
@@ -231,16 +231,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         return tempEmployee;
     }
 
-    //Probably need to return employee here
+
     @Transactional
     @Override
-    public void removeOrGrant(AssignUserRole assignUserRole) {
+    public String removeOrGrant(AssignUserRole assignUserRole) {
         Employee employee = getEmployeeByEmail(assignUserRole.getUsername());
         String role = assignUserRole.getRole();
         String operation = assignUserRole.getOperation();
-
-
-
 
 
         switch (operation.toUpperCase()) {
@@ -250,14 +247,15 @@ public class EmployeeServiceImpl implements EmployeeService {
                     throw new CannotCombineRoles();
                 }
                 updateEmployee(this.authoritiesService.grantAuthority(employee, role));
+                return "GRANT_ROLE";
             }
             case "REMOVE" -> {
                 if (this.authoritiesService.isUserAdmin(employee)) {
                     //throw exception user is admin, cannot have roles
                     throw new CannotRemoveAdministrator();
                 }
-
                 updateEmployee(this.authoritiesService.deleteUserRole(employee, role));
+                return "REMOVE_ROLE";
             }
             default -> {
                 //throw exception here
@@ -276,11 +274,60 @@ public class EmployeeServiceImpl implements EmployeeService {
         this.employeeRepository.delete(employee);
     }
 
+    @Override
+    public void failedLogin(Employee employee) {
+        employee.setFailedLogins(employee.getFailedLogins() + 1);
+        updateEmployee(employee);
+    }
+
+    @Override
+    public void disableEmployee(Employee employee) {
+        this.userService.disableUser(employee);
+    }
+
+//    @Override
+//    public void enableEmployee(Employee employee) {
+//        this.userService.enableUser(employee);
+//        resetLoginAttempts(employee);
+//    }
+
+    @Override
+    public void maxOutLoginAttempts(Employee employee) {
+        employee.setFailedLogins(12);
+        updateEmployee(employee);
+    }
+
+    @Transactional
+    @Override
+    public void resetLoginAttempts(Employee employee) {
+        employee.setFailedLogins(0);
+        updateEmployee(employee);
+    }
+
+    @Override
+    public String lockOrUnlockUser(AssignUserAccess assignUserAccess) {
+        Employee tempEmployee = getEmployeeByEmail(assignUserAccess.getEmployeeUsername());
+        String operation = assignUserAccess.getOperation();
+
+        switch (operation.toUpperCase()) {
+            case "LOCK" -> {
+                this.userService.disableUser(tempEmployee);
+                maxOutLoginAttempts(tempEmployee);
+                return "LOCK_USER";
+            }
+            case "UNLOCK" -> {
+                this.userService.enableUser(tempEmployee);
+                resetLoginAttempts(tempEmployee);
+                return "UNLOCK_USER";
+            }
+            default -> {
+                throw new BadRequest();
+            }
+        }
+    }
 
     @Override
     public List<Employee> getAllEmployees() {
         return this.employeeRepository.findAll();
     }
-
-
 }
